@@ -494,6 +494,7 @@ class Norm(tfutils.Module, tf.keras.layers.Layer):
       raise NotImplementedError(self._impl)
 
 
+# Just an input layer
 class Input:
 
   def __init__(self, keys=['tensor'], dims=None):

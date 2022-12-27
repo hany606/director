@@ -144,6 +144,51 @@ class JSONLOutput(AsyncOutput):
       f.write(json.dumps({'step': step, **scalars}) + '\n')
 
 
+class WandbOutput(AsyncOutput):
+
+  def __init__(self, cfg, task, logdir, fps=20, parallel=True):
+    super().__init__(self._write, parallel)
+    self._logdir = str(logdir)
+    self.use_wandb = cfg.get('use_wandb')
+    if(self.use_wandb):
+      import wandb
+      wandb.init(project=cfg.get('wandb_project'),
+                 entity=cfg.get('wandb_entity'),
+                 group=f"director-{task}",
+                 sync_tensorboard=True
+                 )
+      wandb.run.name = f"{wandb.run.name}-{self._logdir.split('/')[-1]}"
+    
+    self._fps = fps
+
+  def _write(self, summaries):
+    if(self.use_wandb):
+      import wandb
+      for step, name, value in summaries:
+        if len(value.shape) == 0:
+          wandb.log({name: value}, step=step)
+        elif len(value.shape) == 2:
+          images = wandb.Image(value, caption="")
+          wandb.log({name: images}, step)
+        elif len(value.shape) == 3:
+          images = wandb.Image(value, caption="")
+          wandb.log({name: images}, step)
+        elif len(value.shape) == 4:
+          self._video_summary(name, value, step)
+
+  def _video_summary(self, name, video, step):
+    import wandb
+    name = name if isinstance(name, str) else name.decode('utf-8')
+    if np.issubdtype(video.dtype, np.floating):
+      video = np.clip(255 * video, 0, 255).astype(np.uint8)
+    try:
+      T, H, W, C = video.shape
+      wandb.log(
+        {"video": wandb.Video(video, fps=self._fps, format="gif")})
+    except (IOError, OSError) as e:
+      print('GIF summaries require ffmpeg in $PATH.', e)
+      print('TODO: A problem with wandb')
+
 class TensorBoardOutput(AsyncOutput):
 
   def __init__(self, logdir, fps=20, parallel=True):

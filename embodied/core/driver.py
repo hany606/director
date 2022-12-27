@@ -4,6 +4,9 @@ import numpy as np
 
 from .convert import convert
 
+# What is the driver?
+# Connects between the environment and the policy
+# driver(random_agent.policy, steps=train_fill, episodes=1)
 
 class Driver:
 
@@ -32,6 +35,7 @@ class Driver:
 
   def on_step(self, callback):
     self._on_steps.append(callback)
+
 
   def on_episode(self, callback):
     self._on_episodes.append(callback)

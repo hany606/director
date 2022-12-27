@@ -6,6 +6,7 @@ from . import nets
 from . import tfutils
 
 
+# Disagreement between ensemble models.
 class Disag(tfutils.Module):
 
   def __init__(self, wm, act_space, config):

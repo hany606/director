@@ -56,6 +56,7 @@ def train(agent, env, replay, logger, args):
   driver.on_step(lambda tran, _: step.increment())
   driver.on_step(replay.add)
 
+  # Initialize replay buffer
   train_fill = max(0, args.train_fill - len(replay))
   if train_fill:
     print(f'Fill train dataset ({train_fill} steps).')
@@ -70,6 +71,7 @@ def train(agent, env, replay, logger, args):
 
   metrics = collections.defaultdict(list)
   batch = [None]
+  # Train step
   def train_step(tran, worker):
     if should_train(step):
       for _ in range(args.train_steps):
