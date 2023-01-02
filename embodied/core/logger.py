@@ -155,7 +155,8 @@ class WandbOutput(AsyncOutput):
       wandb.init(project=cfg.get('wandb_project'),
                  entity=cfg.get('wandb_entity'),
                  group=f"director-{task}",
-                 sync_tensorboard=True
+                 sync_tensorboard=True,
+                 save_code=False
                  )
       wandb.run.name = f"{wandb.run.name}-{self._logdir.split('/')[-1]}"
     
